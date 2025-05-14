@@ -6,8 +6,10 @@ s.quit;
 s.scope;
 
 // När servern är igång skickar man över en eller flera synth definitioner till serven.
+
+// Audio files
+
 (
-// Kod inom parenteser körs med <cmd> och <Enter> på Mac eller <ctrl> och <Enter> i Windows
 
 SynthDef(\temperatureSynth, { arg frequency = 220, level = 0;
 	var output = SinOsc.ar(freq: frequency, mul: 0.3) * level.lag(0.5);
@@ -18,6 +20,78 @@ SynthDef(\temperatureSynth, { arg frequency = 220, level = 0;
 )
 
 (
+
+SynthDef(\sunSynth, { arg bufnum = 0, on = 0;
+		var output = PlayBuf.ar(
+		numChannels: 2,
+		bufnum: bufnum,
+		rate: 1.0,
+		trigger: 1,
+		startPos: 0,
+		loop: 1,
+		doneAction: 0
+
+	);
+
+	output = output * on;
+
+	Out.ar(0, {output}!2);
+}).add;
+
+)
+
+
+(
+
+SynthDef(\rainSynth, {arg bufnum = 0, on = 0;
+		var output = PlayBuf.ar(
+		numChannels: 2,
+		bufnum: bufnum,
+		rate: 1.0,
+		trigger: 1,
+		startPos: 0,
+		loop: 1,
+		doneAction: 0
+
+	);
+
+	output = output * on;
+
+	Out.ar(0, {output}!2);
+}).add;
+
+)
+
+(
+SynthDef(\snowSynth, {arg bufnum = 0, on = 0;
+	var output = PlayBuf.ar(
+		numChannels: 2,
+		bufnum: bufnum,
+		rate: 1.0,
+		trigger: 1,
+		startPos: 0,
+		loop: 1,
+		doneAction: 0
+
+	);
+
+	output = output * on;
+
+	Out.ar(0, {output}!2);
+}).add;
+)
+
+
+
+(
+
+// Sounds
+var glockenspiel = Buffer.read(s, "C:/Users/gayat/TNM113/la4/softsnowycoldandcalmglockenspieltones.wav");
+
+var cicadas = Buffer.read(s, "C:/Users/gayat/TNM113/la4/queitandcalmcicadasandgrasshopperswithsunbeaming.wav");
+
+var rainy = Buffer.read(s, "C:/Users/gayat/TNM113/la4/rainybrownnoisehittingthegroundsoftly.wav");
+
 // Flaggor som håller koll på vädret
 ~sunFlag = false;
 ~rainFlag = false;
@@ -25,6 +99,16 @@ SynthDef(\temperatureSynth, { arg frequency = 220, level = 0;
 
 // Synthinstansen för temperaturen
 ~temperatureSynth = Synth.new(\temperatureSynth);
+
+// Weather sounds
+~cicadas = Synth.new(\cicadas,[\bufnum, cicadas]);
+~sunSynth = Synth.new(\sunSynth, [\bufnum, cicadas]);
+
+~rainy = Synth.new(\rainy,[\bufnum, rainy]);
+~rainSynth = Synth.new(\rainSynth, [\bufnum, rainy]);
+
+~glockenspiel = Synth.new(\glockenspiel,[\bufnum, glockenspiel]);
+~snowSynth = Synth.new(\snowSynth,[\bufnum, glockenspiel]);
 
 // En del GUI-grejer
 w = Window.new("Thermometer",
@@ -146,22 +230,28 @@ u = UserView(w, Rect(0, 0, 1024, 500))
 ~sunAction = {
 	if (~sunFlag) {
 		("Sun").postln;
+		~sunSynth.set(\on, 1);
 	} {
 		("No sun").postln;
+		~sunSynth.set(\on, 0);
 	};
 };
 ~rainAction = {
 	if (~rainFlag) {
 		("Rain").postln;
+		~rainSynth.set(\on, 1);
 	} {
 		("No rain").postln;
+		~rainSynth.set(\on, 0);
 	};
 };
 ~snowAction = {
 	if (~snowFlag) {
 		("Snow").postln;
+		~snowSynth.set(\on, 1);
 	} {
 		("No snow").postln;
+		~snowSynth.set(\on, 0);
 	};
 };
 
@@ -171,7 +261,7 @@ u = UserView(w, Rect(0, 0, 1024, 500))
 	// Följande skalar om sliderns värde till en float mellan -20 och 40
 	var temperature = (linlin(obj.value, 0, 1, -20, 40)*10).round/10;
 
-	// När temperaturen ändras gör söker med ljudet här
+	// När temperaturen ändras gör saker med ljudet här
 	~temperatureSynth.set(\frequency, linexp(temperature, -20, 40, 110, 880));
 
 
