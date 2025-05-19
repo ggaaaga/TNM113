@@ -19,6 +19,25 @@ SynthDef(\temperatureSynth, { arg frequency = 220, level = 0;
 
 )
 
+
+(
+SynthDef(\tempslideSynth, { arg bufnum = 0, rate = 1,cutoffFreq = 600, on = 0;
+	var output, env;
+	output = PlayBuf.ar(
+		numChannels: 1,
+		bufnum: bufnum,
+		rate: rate * BufRateScale.kr(bufnum),
+		trigger: 1,
+		startPos: 0,
+		loop: 1,
+		doneAction: 0
+	);
+	output = BPF.ar(output * on, cutoffFreq, 0.2);
+	Out.ar(0, output ! 2); // make it stereo
+}).add;
+)
+
+
 (
 
 SynthDef(\sunSynth, { arg bufnum = 0, on = 0;
@@ -33,7 +52,7 @@ SynthDef(\sunSynth, { arg bufnum = 0, on = 0;
 
 	);
 
-	output = output * on;
+	output = LPF.ar(output * on, 440) * 0.3;
 
 	Out.ar(0, {output}!2);
 }).add;
@@ -55,7 +74,7 @@ SynthDef(\rainSynth, {arg bufnum = 0, on = 0;
 
 	);
 
-	output = output * on;
+	output = LPF.ar(output * on, 330) * 0.2;
 
 	Out.ar(0, {output}!2);
 }).add;
@@ -75,7 +94,7 @@ SynthDef(\snowSynth, {arg bufnum = 0, on = 0;
 
 	);
 
-	output = output * on;
+	output = LPF.ar(output * on, 440);
 
 	Out.ar(0, {output}!2);
 }).add;
@@ -88,9 +107,13 @@ SynthDef(\snowSynth, {arg bufnum = 0, on = 0;
 // Sounds
 var glockenspiel = Buffer.read(s, "C:/Users/gayat/TNM113/la4/softsnowycoldandcalmglockenspieltones.wav");
 
-var cicadas = Buffer.read(s, "C:/Users/gayat/TNM113/la4/queitandcalmcicadasandgrasshopperswithsunbeaming.wav");
+// bright warm open kalimba tones, soft and calm tempo for sunny day
+var sunny = Buffer.read(s, "C:/Users/gayat/TNM113/la4/kalimba.wav");
 
-var rainy = Buffer.read(s, "C:/Users/gayat/TNM113/la4/rainybrownnoisehittingthegroundsoftly.wav");
+//ambient melancholic and mellow vibraphone or marimba plucks in minor key, soft and calm evoking rainy atmosphere
+var rainy = Buffer.read(s, "C:/Users/gayat/TNM113/la4/rainy.wav");
+
+var temp = Buffer.read(s, "C:/Users/gayat/TNM113/la4/temp.wav");
 
 // Flaggor som håller koll på vädret
 ~sunFlag = false;
@@ -98,11 +121,13 @@ var rainy = Buffer.read(s, "C:/Users/gayat/TNM113/la4/rainybrownnoisehittingtheg
 ~snowFlag = false;
 
 // Synthinstansen för temperaturen
+~temp = Synth.new(\tempslideSynth,[\bufnum, temp]);
+~tempslideSynth = Synth.new(\tempslideSynth, [\bufnum, temp]);
 ~temperatureSynth = Synth.new(\temperatureSynth);
 
 // Weather sounds
-~cicadas = Synth.new(\cicadas,[\bufnum, cicadas]);
-~sunSynth = Synth.new(\sunSynth, [\bufnum, cicadas]);
+~sunny = Synth.new(\sunny,[\bufnum, sunny]);
+~sunSynth = Synth.new(\sunSynth, [\bufnum, sunny]);
 
 ~rainy = Synth.new(\rainy,[\bufnum, rainy]);
 ~rainSynth = Synth.new(\rainSynth, [\bufnum, rainy]);
@@ -220,10 +245,11 @@ u = UserView(w, Rect(0, 0, 1024, 500))
 
 // När slidern klickas spelas ljudet från temperatursynthen upp
 ~slider.mouseDownAction = {
-	~temperatureSynth.set(\level, 1);
+	~temp.set(\level, 1);
 };
 ~slider.mouseUpAction = {
-	~temperatureSynth.set(\level, 0);
+	~temp.set(\level, 0);
+	~temp.set(\on, 0);
 };
 
 // Följande funktioner ropas på när de olika väderförhållandena väljs
@@ -257,23 +283,18 @@ u = UserView(w, Rect(0, 0, 1024, 500))
 
 // Följande funktion körs när slidern flyttas på
 ~slider.action_({ arg obj;
-	var hue, string; // två variabler för GUIt
+	var hue, string, rate, cutoffFreq; // två variabler för GUIt
 	// Följande skalar om sliderns värde till en float mellan -20 och 40
 	var temperature = (linlin(obj.value, 0, 1, -20, 40)*10).round/10;
 
 	// När temperaturen ändras gör saker med ljudet här
-	~temperatureSynth.set(\frequency, linexp(temperature, -20, 40, 110, 880));
+	//~temperatureSynth.set(\frequency, linexp(temperature, -20, 40, 110, 880));
 
 
+	rate = linexp(temperature, -20, 40, 0.5, 2);
+	cutoffFreq = linlin(temperature,-20, 40, 110, 880);
 
-
-
-
-
-
-
-
-
+	~temp.set(\rate, rate,\cutoffFreq, cutoffFreq, \on, 1);
 
 
 
