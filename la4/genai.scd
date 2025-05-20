@@ -74,7 +74,7 @@ SynthDef(\rainSynth, {arg bufnum = 0, on = 0;
 
 	);
 
-	output = LPF.ar(output * on, 330) * 0.2;
+	output = LPF.ar(output * on, 330) * 0.6;
 
 	Out.ar(0, {output}!2);
 }).add;
@@ -248,7 +248,7 @@ u = UserView(w, Rect(0, 0, 1024, 500))
 	~temp.set(\level, 1);
 };
 ~slider.mouseUpAction = {
-	~temp.set(\level, 0);
+	~temp.set(\level, 1);
 	~temp.set(\on, 0);
 };
 
