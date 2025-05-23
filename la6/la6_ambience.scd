@@ -10,36 +10,131 @@ s.scope;
 // Kod inom parenteser körs med <cmd> och <Enter> på Mac eller <ctrl> och <Enter> i Windows
 
 // Synthdefinitioner som skapar helt procedurella ljud
-SynthDef(\chordSynth, { arg bus, freq, gate = 0, level = 0;
-	var oscillator1 = LFTri.ar(freq, mul: 0.1);
+
+/*SynthDef(\chordSynth, { arg bus, freq, gate = 0, level = 0;
+	var oscillator1 = LFTri.ar(freq, mul : 0.1);
 	var filtered = RLPF.ar(oscillator1, 5000, 0.5);
 	var envelope = EnvGen.ar(Env.adsr(attackTime: 2, decayTime: 2, sustainLevel: 0.25, releaseTime: 3, peakLevel: 0.5, curve: -4), gate);
 	var output = filtered * envelope * level.lag(1);
 	Out.ar(bus, {output}!2);
 }).add;
+
 SynthDef(\bassSynth, { arg bus, freq, gate = 0, level = 0;
 	var sqrWave = LFPulse.ar(freq: freq / 2, width: 0.5, mul: 0.1);
 	var filtered = LPF.ar(sqrWave, 500);
 	var envelope = EnvGen.ar(Env.adsr(attackTime: 2, decayTime: 2, sustainLevel: 0.5, releaseTime: 3, peakLevel: 0.5 * level, curve: -6), gate);
 	var output = filtered * envelope;
 	Out.ar(bus, {output}!2);
+}).add;*/
+
+/////////////////////***************** SYNTHS *****************************////////////////////////////////////
+SynthDef(\guitarSamplePlayer, { arg bufnum, tempo, level = 0, out = 0, gate = 1, cutoffFreq = 20000;
+    var sig, env, rate;
+
+	rate = tempo / 137; // og bpm
+
+    sig = PlayBuf.ar(2, bufnum, BufRateScale.kr(bufnum) * rate, loop: 1);
+
+	sig = RLPF.ar(sig,cutoffFreq) * level;
+	Out.ar(out, (sig)!2);
+}).add;
+
+SynthDef(\perc1Player, { arg bufnum, tempo, level = 0, out = 0, gate = 1, cutoffFreq = 20000;
+    var sig, env, rate;
+
+	rate = tempo / 90; // og bpm
+    sig = PlayBuf.ar(2, bufnum, BufRateScale.kr(bufnum) * rate, loop: 1);
+	sig = RLPF.ar(sig,cutoffFreq) * level;
+	Out.ar(out, (sig)!2);
+}).add;
+
+SynthDef(\perc2Player, { arg bufnum, tempo, level = 0, out = 0, gate = 1, cutoffFreq = 20000;
+    var sig, env, rate;
+
+	rate = tempo / 90; // og bpm
+    sig = PlayBuf.ar(2, bufnum, BufRateScale.kr(bufnum) * rate, loop: 1);
+	sig = RLPF.ar(sig,cutoffFreq) * level;
+	Out.ar(out, (sig)!2);
+}).add;
+
+SynthDef(\lunchPiano, { arg bufnum, tempo, level = 0, out = 0, gate = 1, cutoffFreq = 20000;
+    var sig, env, rate;
+
+	rate = tempo / 100; // og bpm
+    sig = PlayBuf.ar(2, bufnum, BufRateScale.kr(bufnum) * rate, loop: 1);
+	sig = RLPF.ar(sig,cutoffFreq) * level;
+	Out.ar(out, (sig)!2);
+}).add;
+
+SynthDef(\aftJazz, { arg bufnum, tempo, level = 0, out = 0, gate = 1, cutoffFreq = 20000;
+    var sig, env, rate;
+
+	rate = tempo / 127; // og bpm
+    sig = PlayBuf.ar(2, bufnum, BufRateScale.kr(bufnum) * rate, loop: 1);
+	sig = RLPF.ar(sig,cutoffFreq) * level;
+	Out.ar(out, (sig)!2);
+}).add;
+
+SynthDef(\dinPerc, { arg bufnum, tempo, level = 0, out = 0, gate = 1, cutoffFreq = 20000;
+    var sig, env, rate;
+
+	rate = tempo / 104; // og bpm
+    sig = PlayBuf.ar(2, bufnum, BufRateScale.kr(bufnum) * rate, loop: 1);
+	sig = RLPF.ar(sig,cutoffFreq) * level;
+	Out.ar(out, (sig)!2);
+}).add;
+
+SynthDef(\dinBass, { arg bufnum, tempo, level = 0, out = 0, gate = 1, cutoffFreq = 20000;
+    var sig, env, rate;
+
+	rate = tempo / 100; // og bpm
+    sig = PlayBuf.ar(2, bufnum, BufRateScale.kr(bufnum) * rate, loop: 1);
+	sig = RLPF.ar(sig,cutoffFreq) * level;
+	Out.ar(out, (sig)!2);
+}).add;
+
+SynthDef(\happyhour, { arg bufnum, tempo, level = 0, out = 0, gate = 1, cutoffFreq = 20000;
+    var sig, env, rate;
+
+	rate = tempo / 100; // og bpm
+    sig = PlayBuf.ar(2, bufnum, BufRateScale.kr(bufnum) * rate, loop: 1);
+	sig = RLPF.ar(sig,cutoffFreq) * level;
+	Out.ar(out, (sig)!2);
+}).add;
+
+
+SynthDef(\lunchsynth, {arg bufnum = 0, on = 0;
+      var output = PlayBuf.ar(
+            numChannels: 2,
+            bufnum: bufnum,
+            rate: 1.0,
+            trigger: 1,
+            startPos: 0,
+            loop: 1,
+            doneAction: 0
+      ) ;
+
+      output = output +  (Crackle.ar(1.8)* (0.05));
+
+      Out.ar(0, {output}!2);
 }).add;
 
 
 // Synthdefinitioner som spelar upp ljudsamplingar
-SynthDef(\doorbellSamplePlayer, { arg bus, bufnum = 0, t_gate = 0, level = 0;
+SynthDef(\doorbellSamplePlayer, { arg bus, bufnum = 0, t_gate = 0, rate =1, level = 0;
 	var sound = PlayBuf.ar(
 		numChannels: 2,
 		bufnum: bufnum,
-		rate: BufRateScale.kr(bufnum),
+		rate: BufRateScale.kr(bufnum) * rate,
 		trigger: t_gate,
 		startPos: 0,
 		loop: 0,
 		doneAction: 2
 	);
-	var output = sound * 0.015 * level;
+	var output = HPF.ar(sound, 800)* 0.15 *level;
 	Out.ar(bus, {output}!2);
 }).add;
+
 SynthDef(\bellSamplePlayer, { arg bus, bufnum = 0, level = 0;
 	var sound = PlayBuf.ar(
 		numChannels: 2,
@@ -60,8 +155,8 @@ SynthDef(\bellSamplePlayer, { arg bus, bufnum = 0, level = 0;
 SynthDef(\outputEffects, {arg inputbus, bus;
 	var input = In.ar(inputbus, numChannels: 2);
 	var reverbed = FreeVerb.ar(in: input, mix: 1, room: 0.5, damp: 0.1, mul: 1.0);
-	var echo = Greyhole.ar(in: input, delayTime: 2.5, damp: 0.5, diff: 0.8, feedback: 0.5);
-	var roomEffects = reverbed + echo;
+	//var echo = Greyhole.ar(in: input, delayTime: 2.5, damp: 0.5, diff: 0.8, feedback: 0.5);
+	var roomEffects = reverbed ;//+ echo;
 	var output = input + (roomEffects * 0.75);
 	Out.ar(bus, output);
 }).add;
@@ -83,11 +178,11 @@ SynthDef(\outputChannel, {arg inputbus, level = 0.5;
 
 // Följande ackord ger en lite mollaktig ackordföljd
 // Toner i ackordet 0 = C, Eb, G; 1 = C, D, G; 2 = C, F, G; 3 = D, G, B
-~chordDictionary = Dictionary[0 -> [60, 63, 67], 1 -> [60, 62, 67], 2 -> [60, 65, 67], 3 -> [62, 67, 71]];
+//~chordDictionary = Dictionary[0 -> [60, 63, 67], 1 -> [60, 62, 67], 2 -> [60, 65, 67], 3 -> [62, 67, 71]];
 
 // Följande ackord ger en lite mer lättsam (?) ackordföljd
 // Toner i ackordet 0 = C, E, G; 1 = D, G, B; 2 = C, E, A; 3 = C, F, A
-//~chordDictionary = Dictionary[0 -> [60, 64, 67], 1 -> [62, 67, 71], 2 -> [60, 64, 69], 3 -> [60, 65, 69]];
+~chordDictionary = Dictionary[0 -> [60, 64, 67], 1 -> [62, 67, 71], 2 -> [60, 64, 69], 3 -> [60, 65, 69]];
 
 // Följande ackord ger en lite mer dyster (?) ackordföljd
 // Toner i ackordet 0 = B, D, G; 1 = B, D#, F#; 2 = C, E, G; 3 = C, Eb, G
@@ -100,15 +195,15 @@ SynthDef(\outputChannel, {arg inputbus, level = 0.5;
 for (0, 2) { arg index;
 	~chordSynthDictionary.add(index -> Synth.new(\chordSynth, [\bus, ~outputEffectBus.index;]).register);
 };
-~chordLevel = 0.25;
+//~chordLevel = 0.25;
 
 // Följande toner funkar till den mollaktiga ackordföljden
 // Toner i basen C, C, F, G
-~bassNoteNumbersToUse = [60, 50, 53, 55];
+//~bassNoteNumbersToUse = [60, 50, 53, 55];
 
 // Följande toner funkar till den lite mer lättsamma ackordföljden
 // Toner i basen C, G, A, F
-//~bassNoteNumbersToUse = [60, 55, 57, 53];
+~bassNoteNumbersToUse = [60, 55, 57, 53];
 
 // Följande toner funkar till den lite mer dystra ackordföljden
 // Toner i basen G, B, C, C (en oktav ner)
@@ -124,12 +219,24 @@ for (0, 2) { arg index;
 // Läs in dörrklockljudet
 ~doorbellSample = Buffer.read(s, thisProcess.nowExecutingPath.dirname++"/sounds/doorbell2.wav");
 
+// GUITAR
+~guitarBuf = Buffer.read(s, thisProcess.nowExecutingPath.dirname ++ "/sounds/calmguitar.wav");
+~perc1Buf = Buffer.read(s, thisProcess.nowExecutingPath.dirname ++ "/sounds/glass.wav");
+~perc2Buf = Buffer.read(s, thisProcess.nowExecutingPath.dirname ++ "/sounds/shaker.wav");
+~lunchPianoBuf = Buffer.read(s, thisProcess.nowExecutingPath.dirname ++ "/sounds/lunchPiano.wav");
+~happyhour = Buffer.read(s, thisProcess.nowExecutingPath.dirname++"/sounds/happyhour2.wav");
+~lunch = Buffer.read(s, thisProcess.nowExecutingPath.dirname++"/sounds/pianolatin.wav");
+~aftJazzBuf = Buffer.read(s, thisProcess.nowExecutingPath.dirname++"/sounds/jazzyj.wav");
+~dinPercBuf= Buffer.read(s, thisProcess.nowExecutingPath.dirname++"/sounds/dinperc.wav");
+~dinBassBuf= Buffer.read(s, thisProcess.nowExecutingPath.dirname++"/sounds/dinbass.wav");
+~happyhourBuf= Buffer.read(s, thisProcess.nowExecutingPath.dirname++"/sounds/latdrums.wav");
+
 
 // En environmentvariabel som håller koll på antal personer i lobbyn
 ~numberOfPersons = 0;
 // Detta förbereder en rutin som sequencerfunktionen använder senare
 ~startRoutine.play(AppClock);
-~tempoInBPM = 75; // Detta är tempot i slag per minut (beats per minute)
+~tempoInBPM = 90; // Detta är tempot i slag per minut (beats per minute)
 ~beatCounter = 1; // Detta är en variabel som håller koll på vilket slag i takten det är
 ~startFlag = true; // En flagga som används för att starta klockan (en gång) när det första OSC-meddelandet tas emot
 ~stopflag = false; // En flagga som används när dagen är slut och sedan stoppar uppspelningen
@@ -192,6 +299,8 @@ OSCdef(\timeListener, { arg inputmsg;
 	};
 }, 'time');
 
+~chordLevel = 0;
+~bassLevel = 0;
 
 // Följande funktion anropas av OSC-lyssnaren som tar emot tidsinformationen
 ~hourSyncedStuff = {
@@ -200,37 +309,96 @@ OSCdef(\timeListener, { arg inputmsg;
 			// Spela upp klockljudet som markerar de olika tidsdelarna
 			~playbell.value;
 
-			// Sätt ljudvolymen för de procedurella syntarna, vilken sedan sätts i sequencerfunktionen
-			~chordLevel = 0.25;
-			~bassLevel = 0;
+
+			~guitarSynth = Synth(\guitarSamplePlayer, [
+				\bufnum, ~guitarBuf,
+				\tempo, ~tempoInBPM,
+				\level, 1,
+				\cutoffFreq, 10000,
+				\out, ~outputEffectBus
+			]);
+
+			~perc1Synth = Synth(\perc1Player, [
+				\bufnum, ~perc1Buf,
+				\tempo, ~tempoInBPM,
+				\level, 0.2,
+				\cutoffFreq, 20000,
+				\out, ~outputEffectBus
+			]);
+
+			~perc2Synth = Synth(\perc2Player, [
+				\bufnum, ~perc2Buf,
+				\tempo, ~tempoInBPM,
+				\out, ~outputEffectBus
+			]);
+
+			~lunchPianoSynth = Synth(\lunchPiano, [
+				\bufnum, ~lunchPianoBuf,
+				\tempo, ~tempoInBPM,
+				\out, ~outputEffectBus
+			]);
+
+			~aftJazzSynth = Synth(\aftJazz, [
+				\bufnum, ~aftJazzBuf,
+				\tempo, ~tempoInBPM,
+				\out, ~outputEffectBus
+			]);
+
+			~dinPercSynth = Synth(\dinPerc, [
+				\bufnum, ~dinPercBuf,
+				\tempo, ~tempoInBPM,
+				\out, ~outputEffectBus
+			]);
+
+			~dinBassSynth = Synth(\dinBass, [
+				\bufnum, ~dinBassBuf,
+				\tempo, ~tempoInBPM,
+				\out, ~outputEffectBus
+			]);
+
+			~hhSynth = Synth(\happyhour, [
+				\bufnum, ~happyhourBuf,
+				\tempo, ~tempoInBPM,
+				\out, ~outputEffectBus
+			]);
 		},
 		11, { // Lunch
 			~playbell.value;
 
-			~chordLevel = 0.5;
-			~bassLevel = 0.25;
+			~guitarSynth.set(\level, 0);
+			~lunchPianoSynth.set(\level, 1);
+			~perc1Synth.set(\level, 0.7);
+			~perc2Synth.set(\level, 0.7);
+
 		},
 		13, { // Afternoon
 			~playbell.value;
-
-			~chordLevel = 0.25;
-			~bassLevel = 0.5;
+			~lunchPianoSynth.set(\level, 0.5);
+			~aftJazzSynth.set(\level, 0.6);
+			~perc1Synth.set(\level,0.5);
+			~perc2Synth.set(\level,0.5);
+			~dinBassSynth.set(\level,0.4);
 		},
 		17, { // Evening
 			~playbell.value;
-
-			~chordLevel = 0.5;
-			~bassLevel = 1;
+			~lunchPianoSynth.set(\level, 0.5);
+			~dinPercSynth.set(\level,0.9);
+			~dinBassSynth.set(\level,0.7);
 		},
 		20, { // Happy hour
 			~playbell.value;
-
-			~chordLevel = 1;
-			~bassLevel = 1;
+			~aftJazzSynth.set(\level, 0.3);
+			~dinBassSynth.set(\level,0);
+			~dinPercSynth.set(\level,0);
+			~lunchPianoSynth.set(\level, 0.4);
+			~hhSynth.set(\level, 1);
 		},
 		23, { // Closed
 			~playbell.value;
 
+			~aftJazzSynth.set(\level, 0);
+			~lunchPianoSynth.set(\level, 0);
+			~hhSynth.set(\level, 0);
 			// Sätt stoppflaggan för sequencerfunktionen
 			~stopflag = true;
 		},
@@ -249,7 +417,13 @@ OSCdef(\personListener, { arg inputmsg;
 	if (inputmsg.size > 1) {
 		var inputPerson = inputmsg[1].asInteger;
 		if (inputPerson > ~numberOfPersons) {
-			Synth.new(\doorbellSamplePlayer, [\bufnum, ~doorbellSample, \bus, ~outputEffectBus.index, \level, 1;]);
+
+			var lvl = ~numberOfPersons.linlin(0,7,0.5,1.3);
+
+			fork({
+			Synth.new(\doorbellSamplePlayer, [\bufnum, ~doorbellSample, \bus, ~outputEffectBus.index, \rate, 0.8, \level, lvl;]);
+			0.2.wait;
+				Synth.new(\doorbellSamplePlayer, [\bufnum, ~doorbellSample, \bus, ~outputEffectBus.index, \rate, 0.7, \level, lvl;]);})
 		};
 		~numberOfPersons = inputPerson;
 	};
@@ -260,8 +434,31 @@ OSCdef(\personListener, { arg inputmsg;
 OSCdef(\temperatureListener, { arg inputmsg;
 	if (inputmsg.size > 1) {
 		var inputTemperature = inputmsg[1].asFloat;
-		inputTemperature = linlin(inputTemperature, 19.7, 22.3, 0.3, 1);
-		~outputChannel.set(\level, inputTemperature);
+		//~outputChannel.set(\level, inputTemperature);
+		~tempoInBPM = inputTemperature.linlin(19.7, 22.3, 90, 110);
+
+		// Om klockan finns, uppdatera tempot i den
+		if (~tempoClock.notNil) {
+			~tempoClock.tempo = ~tempoInBPM / 60;
+		};
+
+		if (~guitarSynth.notNil) {
+
+		};
+
+		if (~perc1Synth.notNil) {
+
+		};
+
+		~guitarSynth.set(\tempo, ~tempoInBPM);
+		~perc1Synth.set(\tempo, ~tempoInBPM);
+		~perc2Synth.set(\tempo, ~tempoInBPM);
+		~lunchPianoSynth.set(\tempo, ~tempoInBPM);
+		~aftJazzSynth.set(\tempo, ~tempoInBPM);
+		~dinPercSynth.set(\tempo, ~tempoInBPM);
+		~dinBassSynth.set(\tempo, ~tempoInBPM);
+		~hhSynth.set(\tempo, ~tempoInBPM);
+
 	};
 }, 'temperature');
 
