@@ -5,20 +5,68 @@ s.quit;
 // Start oscilloscope
 s.scope;
 
-// När servern är igång skickar man över en eller flera synth definitioner till serven.
-// Kod inom parenteser körs med <cmd> och <Enter> på Mac eller <ctrl> och <Enter> i Windows
-
-// Bass drum
-
-~lvl1 = Buffer.read(s, "projekt\sounds\lvl1.wav");
+/***** SynthDefs *****/
 
 (
-SynthDef(\lvl1, { arg t_trig = 1;
+SynthDef(\lvl1, { arg bufnum = 0, level = 0;
 	var output, sound;
 
+	output = SinOsc.ar(440) * level;
+
+
+	Out.ar(0, {output}!2);
+
+}).add;
+
+SynthDef(\lvl2, { arg bufnum = 0, level = 0, rate = 1.0;
+	var output, sound;
+
+	sound = PlayBuf.ar(
+            numChannels: 2,
+            bufnum: bufnum,
+            rate: BufRateScale.kr(bufnum) * rate,
+            trigger: 1,
+            startPos: 0,
+            loop: 1,
+      );
+
+	output = sound;
 
 	Out.ar(0, {output}!2);
 
 }).play;
 
 )
+
+
+/***** Buffers *****/
+(
+var lvl1Buf = Buffer.read(s, thisProcess.nowExecutingPath.dirname++"/nochildleftbehind.wav");
+var lvl2Buf = Buffer.read(s, "loop\\lvl1.wav");
+var lvl3Buf = Buffer.read(s, "loop\\lvl1.wav");
+var lvl4Buf = Buffer.read(s, "loop\\lvl1.wav");
+var lvl5Buf = Buffer.read(s, "loop\\lvl1.wav");
+)
+
+/***** Switchcase *****/
+(
+var out = {
+	switch (
+
+};
+
+
+
+)
+
+/***** PersonListener *****/
+(
+
+
+
+)
+
+
+
+
+
