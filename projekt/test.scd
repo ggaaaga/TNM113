@@ -225,7 +225,7 @@ Routine({
 	~queueData.do { |persons|
 		("Nr of people in queue:" + persons).postln;
 		~updateMusic.(persons);
-		10.wait; // Adjust timing here if needed
+		10.wait;
 	};
 }).play;
 )
