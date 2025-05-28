@@ -38,11 +38,11 @@ SynthDef(\crowd, { arg bufnum, level=0.1;
 	Out.ar(0, sound * level);
 }).add;
 
-SynthDef(\strings, { arg bufnum = 0, level = 0, rate = 1.0;
+SynthDef(\strings, { arg bufnum = 0, level = 0, rate = 1.0, bpf = 150, plus = 150;
       var sound;
 
      sound = PlayBuf.ar(2, bufnum,BufRateScale.kr(bufnum) * rate, loop: 1);
-	sound = RHPF.ar(RLPF.ar(sound, 200), 100);
+	sound = RHPF.ar(RLPF.ar(sound, bpf+plus), bpf-plus);
 
       Out.ar(0, sound*level);
 }).add;
@@ -210,7 +210,7 @@ SynthDef(\HiHat, { arg t_trig;
 		5, {
 			~crowdSynth.set(\level, 0.5);
 
-			~bgSynth.set(\level, 1.0);
+			~bgSynth.set(\level, 1.0, \plus, 50);
 			~pianoSynth.set(\level, 0.15);
 			~dtSynth.set(\level, 0);
 			~dfSynth.set(\level, 0);
